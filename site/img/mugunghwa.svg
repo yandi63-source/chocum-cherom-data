@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#faf6f0"/>
+  <g transform="translate(256,256)">
+    <!-- 꽃잎 5장 (무궁화) -->
+    <g fill="#d64a7b" opacity="0.9">
+      <ellipse cx="0" cy="-90" rx="55" ry="90" transform="rotate(0)"/>
+      <ellipse cx="0" cy="-90" rx="55" ry="90" transform="rotate(72)"/>
+      <ellipse cx="0" cy="-90" rx="55" ry="90" transform="rotate(144)"/>
+      <ellipse cx="0" cy="-90" rx="55" ry="90" transform="rotate(216)"/>
+      <ellipse cx="0" cy="-90" rx="55" ry="90" transform="rotate(288)"/>
+    </g>
+    <!-- 꽃잎 안쪽 진한 무늬 (무궁화 특징) -->
+    <g fill="#8b1a4a" opacity="0.6">
+      <ellipse cx="0" cy="-40" rx="18" ry="40" transform="rotate(0)"/>
+      <ellipse cx="0" cy="-40" rx="18" ry="40" transform="rotate(72)"/>
+      <ellipse cx="0" cy="-40" rx="18" ry="40" transform="rotate(144)"/>
+      <ellipse cx="0" cy="-40" rx="18" ry="40" transform="rotate(216)"/>
+      <ellipse cx="0" cy="-40" rx="18" ry="40" transform="rotate(288)"/>
+    </g>
+    <!-- 중심 수술 -->
+    <circle cx="0" cy="0" r="22" fill="#f0c040"/>
+    <circle cx="0" cy="-10" r="3" fill="#8b1a4a"/>
+    <circle cx="9" cy="-3" r="3" fill="#8b1a4a"/>
+    <circle cx="-9" cy="-3" r="3" fill="#8b1a4a"/>
+    <circle cx="6" cy="8" r="3" fill="#8b1a4a"/>
+    <circle cx="-6" cy="8" r="3" fill="#8b1a4a"/>
+  </g>
+</svg>

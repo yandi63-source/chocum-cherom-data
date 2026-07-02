@@ -1,0 +1,27 @@
+{
+  "name": "처음처럼 — 이진구의 영상일기",
+  "short_name": "처음처럼",
+  "description": "안동문화회관 관장 이진구의 17년 영상일기",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf6f0",
+  "theme_color": "#faf6f0",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "img/mugunghwa.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

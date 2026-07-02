@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Font Size Test</title></head>
+<body>
+<script>
+async function runTests() {
+    let results = [];
+    
+    // 현재 상태
+    const computed = getComputedStyle(document.documentElement);
+    results.push('html fontSize initial: ' + computed.fontSize);
+    
+    // JS로 변경
+    document.documentElement.style.fontSize = '28px';
+    const after = getComputedStyle(document.documentElement);
+    results.push('html fontSize after set 28px: ' + after.fontSize);
+    
+    // 실제 사이트 CSS/JS 로드 테스트
+    results.push('');
+    results.push('--- Checking site files ---');
+    
+    // CSS 확인
+    const cssResp = await fetch('/css/style.css');
+    const css = await cssResp.text();
+    const htmlMatch = css.match(/html\s*\{[^}]+\}/g);
+    results.push('CSS html rules: ' + JSON.stringify(htmlMatch));
+    
+    // JS 확인  
+    const jsResp = await fetch('/js/app.js');
+    const js = await jsResp.text();
+    const applyMatch = js.match(/function applyFontSize[\s\S]*?
+\}/);
+    results.push('applyFontSize: ' + applyMatch);
+    
+    document.body.innerHTML = '<pre>' + results.join('
+') + '</pre>';
+}
+runTests();
+</script>
+</body>
+</html>

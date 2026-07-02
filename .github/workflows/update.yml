@@ -1,0 +1,38 @@
+name: 새 글 자동 수집
+
+on:
+  schedule:
+    # 매주 월·목 KST 오전 6시 (UTC 21시 일·수)
+    - cron: '0 21 * * 0,3'
+  workflow_dispatch:  # 수동 실행 버튼
+
+permissions:
+  contents: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 의존성 설치
+        run: pip install -r requirements.txt
+
+      - name: 스크래퍼 실행
+        run: python scraper.py
+
+      - name: 변경사항 커밋
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add site/data
+          if git diff --cached --quiet; then
+            echo "새 글 없음"
+          else
+            git commit -m "자동 수집: $(date -u +%Y-%m-%d)"
+            git push
+          fi

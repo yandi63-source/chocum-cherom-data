@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
+  <title>처음처럼 — 이진구의 영상일기</title>
+  <meta name="referrer" content="no-referrer">
+  <meta name="description" content="안동문화회관 관장 이진구의 17년 영상일기">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#f7f3ed" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#171412" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css?v=30">
+  <link rel="icon" type="image/svg+xml" href="img/mugunghwa.svg">
+</head>
+<body>
+
+  <!-- ========== Book ========== -->
+  <div class="book" id="book">
+    <div class="book-page-layer active" id="pageLayer1"></div>
+    <div class="book-page-layer" id="pageLayer2"></div>
+    <div class="page-shadow" id="pageShadow"></div>
+    <div class="tap-left" id="tapLeft"></div>
+    <div class="tap-center" id="tapCenter"></div>
+    <div class="tap-right" id="tapRight"></div>
+  </div>
+
+  <!-- ========== Top Bar ========== -->
+  <div class="topbar hidden" id="topbar">
+    <div class="tb-left">
+      <button class="tb-btn" onclick="goHome()" title="처음으로">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12l9-8 9 8"/><path d="M5 10v9a1 1 0 001 1h3v-5h6v5h3a1 1 0 001-1v-9"/>
+        </svg>
+      </button>
+    </div>
+    <!-- JS 호환용 (숨김) -->
+    <span class="tb-fontsize" id="tbFontSize" style="display:none">18</span>
+    <div class="tb-right">
+      <button class="tb-btn" onclick="openSearch()" title="검색">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+      </button>
+      <button class="tb-btn" onclick="openTimeline()" title="타임라인">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+        </svg>
+      </button>
+      <button class="tb-btn" onclick="openTOC()" title="목차">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6h16M4 12h16M4 18h12"/>
+        </svg>
+      </button>
+      <button class="tb-btn" onclick="openSettings()" title="설정">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========== Bottom Bar ========== -->
+  <div class="bottombar hidden" id="bottombar">
+    <button class="bb-btn" id="btnPrev" onclick="prevPage()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      <span id="btnPrevText">이전</span>
+    </button>
+    <span class="bb-page" id="pageIndicator">1 / 1</span>
+    <button class="bb-btn" id="btnNext" onclick="nextPage()">
+      <span id="btnNextText">다음</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+
+  <!-- ========== TOC Overlay ========== -->
+  <div class="toc-overlay" id="tocOverlay" onclick="if(event.target===this)closeTOC()">
+    <div class="toc-panel">
+      <div class="toc-header">
+        <h3>목차</h3>
+        <button class="toc-close" onclick="closeTOC()">닫기</button>
+      </div>
+      <div class="toc-book-info" id="tocBookInfo">
+        <div class="toc-book-title">처음처럼</div>
+        <div class="toc-book-author">이진구의 영상일기</div>
+      </div>
+      <div class="toc-category-btn-wrap">
+        <button class="toc-category-btn" onclick="closeTOC(); openCategoryFilter()">주제별 보기</button>
+      </div>
+      <div class="toc-search-wrap">
+        <input type="text" class="toc-search-input" id="tocSearchInput"
+               placeholder="제목 검색..." autocomplete="off">
+      </div>
+      <div class="toc-body" id="tocBody"></div>
+    </div>
+  </div>
+
+  <!-- ========== Search Overlay ========== -->
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-panel">
+      <div class="search-header">
+        <input type="text" class="search-input" id="searchInput"
+               placeholder="검색어를 입력하세요..." autocomplete="off">
+        <button class="search-close" onclick="closeSearch()">취소</button>
+      </div>
+      <div class="search-tabs" id="searchTabs">
+        <button class="search-tab active" data-tab="title" onclick="setSearchTab('title')">제목</button>
+        <button class="search-tab" data-tab="text" onclick="setSearchTab('text')">본문</button>
+        <button class="search-tab" data-tab="ai" onclick="setSearchTab('ai')">AI 질문</button>
+      </div>
+      <div class="search-ai-hint" id="searchAIHint" style="display:none;">
+        예: "아버지가 안동에서 자주 가신 곳은?"
+      </div>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+
+  <!-- ========== Settings (Bottom Sheet) ========== -->
+  <div class="settings-backdrop" id="settingsBackdrop" onclick="closeSettings()"></div>
+  <div class="settings-sheet" id="settingsSheet">
+    <div class="settings-handle" onclick="closeSettings()"><div class="handle-bar"></div></div>
+
+    <!-- 배경색 -->
+    <div class="ss-row ss-colors">
+      <button class="ss-color-dot warm active" data-color="warm" onclick="setColorTheme('warm')"></button>
+      <button class="ss-color-dot cool" data-color="cool" onclick="setColorTheme('cool')"></button>
+      <button class="ss-color-dot green" data-color="green" onclick="setColorTheme('green')"></button>
+      <button class="ss-color-dot sepia" data-color="sepia" onclick="setColorTheme('sepia')"></button>
+    </div>
+
+    <!-- 밝기 -->
+    <div class="ss-row">
+      <span class="ss-label">화면</span>
+      <div class="ss-toggle-group">
+        <button class="ss-toggle" data-theme-mode="light" onclick="setThemeMode('light')">밝게</button>
+        <button class="ss-toggle" data-theme-mode="dark" onclick="setThemeMode('dark')">어둡게</button>
+        <button class="ss-toggle" data-theme-mode="auto" onclick="setThemeMode('auto')">자동</button>
+      </div>
+    </div>
+
+    <!-- 글꼴 -->
+    <div class="ss-row">
+      <span class="ss-label">글꼴</span>
+      <select class="ss-select" id="fontSelect" onchange="setFont(this.value)">
+        <option value="noto-serif">노토 명조</option>
+        <option value="myeongjo">나눔명조</option>
+        <option value="gowun-batang">고운바탕</option>
+        <option value="gothic">나눔고딕</option>
+        <option value="noto-sans">노토 산스</option>
+        <option value="gowun-dodum">고운돋움</option>
+        <option value="gamja">감자꽃</option>
+      </select>
+    </div>
+
+    <!-- 글자 크기 -->
+    <div class="ss-row">
+      <span class="ss-label">글자 크기</span>
+      <span class="ss-value" id="fontSizeLabel">18</span>
+      <div class="ss-pm">
+        <button class="ss-pm-btn" onclick="changeFontSize(-2)">&minus;</button>
+        <button class="ss-pm-btn" onclick="changeFontSize(2)">+</button>
+      </div>
+    </div>
+
+    <!-- 넘김 효과 -->
+    <div class="ss-row">
+      <span class="ss-label">넘김</span>
+      <select class="ss-select" id="flipSelect" onchange="setFlipStyle(this.value)">
+        <option value="flip3d">책넘김</option>
+        <option value="slide">슬라이드</option>
+        <option value="fade">서서히</option>
+        <option value="instant">바로</option>
+      </select>
+    </div>
+
+    <!-- 사진 -->
+    <div class="ss-row">
+      <span class="ss-label">사진</span>
+      <select class="ss-select" id="imgSelect" onchange="setImageSize(this.value)">
+        <option value="large">크게</option>
+        <option value="normal">보통</option>
+        <option value="small">작게</option>
+        <option value="off">숨김</option>
+      </select>
+    </div>
+
+    <!-- 낭독 목소리 -->
+    <div class="ss-row">
+      <span class="ss-label">낭독</span>
+      <div class="ss-toggle-group">
+        <button class="ss-toggle" data-tts-voice="female" onclick="setTtsVoice('female')">여자</button>
+        <button class="ss-toggle" data-tts-voice="male" onclick="setTtsVoice('male')">남자</button>
+      </div>
+    </div>
+
+    <div class="ss-version" id="ssVersion">v2.0</div>
+  </div>
+
+  <!-- ========== Timeline Overlay ========== -->
+  <div class="timeline-overlay" id="timelineOverlay" onclick="if(event.target===this)closeTimeline()">
+    <div class="timeline-panel">
+      <div class="timeline-header">
+        <h3>타임라인</h3>
+        <button class="timeline-close" onclick="closeTimeline()">닫기</button>
+      </div>
+      <div class="timeline-chart-wrap">
+        <canvas id="timelineChart"></canvas>
+      </div>
+      <div class="timeline-list" id="timelineList"></div>
+    </div>
+  </div>
+
+  <!-- ========== Category Filter Overlay ========== -->
+  <div class="category-overlay" id="categoryOverlay" onclick="if(event.target===this)closeCategoryFilter()">
+    <div class="category-panel">
+      <div class="category-header">
+        <h3>주제별 보기</h3>
+        <button class="category-close" onclick="closeCategoryFilter()">닫기</button>
+      </div>
+      <div class="category-chips" id="categoryChips"></div>
+      <div class="category-results" id="categoryResults"></div>
+    </div>
+  </div>
+
+  <!-- TTS Player -->
+  <div class="tts-player" id="ttsPlayer" style="display:none;">
+    <button class="tts-stop-btn" onclick="stopTTS()">멈춤</button>
+    <div class="tts-progress" id="ttsProgress">낭독 중...</div>
+  </div>
+
+  <!-- New Post Bell -->
+  <div class="new-post-bell" id="newPostBell" style="display:none;" onclick="goToLatestPost()">
+    새 글이 있습니다
+  </div>
+
+  <!-- Page Number -->
+  <div class="book-pagenum" id="bookPageNum">1</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="js/app.js?v=30"></script>
+  <script src="js/ai-features.js?v=3"></script>
+</body>
+</html>
