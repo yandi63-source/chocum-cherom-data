@@ -18,6 +18,14 @@ import json
 import time
 import os
 import re
+import urllib.parse
+
+# 스크랩 글의 장식용(비사진) 이미지 - 이 패턴이 fname에 들어있으면 제외
+# (퍼온 기사의 버튼/아이콘/스페이서 gif 등)
+JUNK_IMG_HINTS = ("spc.gif", "blank.gif", "spacer", "1x1", "_icon.gif",
+                  "nblog/spc", "buttonimage", "emoticon", "btn_", "urlcopy",
+                  "/icon", "icon_", "bullet", "bg.gif", "bg_", "line.gif",
+                  "title.gif", "author_icon", "/btn", "arrow", "blank")
 
 BASE_URL = "https://m.cafe.daum.net/123ad/9vTE"
 HEADERS = {
@@ -84,9 +92,20 @@ def fetch_post(dataid):
     if content_el:
         for img in content_el.find_all("img"):
             src = img.get("src") or img.get("data-src") or ""
-            if src and "daumcdn" in src:
-                src = re.sub(r'\?.*$', '', src)
+            if not src or "daumcdn" not in src:
+                continue
+            if "/relay/" in src:
+                # relay(스크랩/퍼온) 이미지는 실제 주소가 ?fname= 안에 있으므로 쿼리 유지.
+                # 단, 스페이서/아이콘 등 장식용 gif는 제외한다.
+                m = re.search(r'fname=([^&]+)', src)
+                if m:
+                    real = urllib.parse.unquote(m.group(1)).lower()
+                    if any(j in real for j in JUNK_IMG_HINTS):
+                        continue
                 images.append(src)
+            else:
+                # 일반 이미지는 쿼리 제거(기존 동작 유지)
+                images.append(re.sub(r'\?.*$', '', src))
         for br in content_el.find_all("br"):
             br.replace_with("\n")
         for p in content_el.find_all("p"):
