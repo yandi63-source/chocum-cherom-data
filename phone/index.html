@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="auto">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>원무 전화응대 도우미</title>
+  <meta name="description" content="병·의원 원무 데스크용 전화응대 도우미 — 부재중 콜백 관리, 응대 스크립트, 문자 템플릿">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#0f766e">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css?v=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext y='20' font-size='20'%3E%F0%9F%93%9E%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+
+  <!-- ========== Header ========== -->
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="app-brand">
+        <span class="app-logo" aria-hidden="true">📞</span>
+        <div class="app-title-wrap">
+          <h1 class="app-title" id="clinicName">원무 전화응대 도우미</h1>
+          <p class="app-sub" id="clinicSub">전화 데스크 지원 도구</p>
+        </div>
+      </div>
+      <div class="app-header-stats" id="headerStats">
+        <button class="hstat" data-goto="callback" title="미처리 콜백으로 이동">
+          <span class="hstat-num" id="statPending">0</span>
+          <span class="hstat-label">미처리</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== Tabs ========== -->
+  <nav class="tabbar" id="tabbar" role="tablist">
+    <button class="tab active" data-tab="callback" role="tab">
+      <span class="tab-ico" aria-hidden="true">📋</span><span class="tab-txt">부재중 콜백</span>
+    </button>
+    <button class="tab" data-tab="scripts" role="tab">
+      <span class="tab-ico" aria-hidden="true">💬</span><span class="tab-txt">응대 스크립트</span>
+    </button>
+    <button class="tab" data-tab="templates" role="tab">
+      <span class="tab-ico" aria-hidden="true">✉️</span><span class="tab-txt">문자 템플릿</span>
+    </button>
+    <button class="tab" data-tab="settings" role="tab">
+      <span class="tab-ico" aria-hidden="true">⚙️</span><span class="tab-txt">설정</span>
+    </button>
+  </nav>
+
+  <main class="app-main">
+
+    <!-- ========================================================= -->
+    <!-- TAB 1: 부재중 콜백 -->
+    <!-- ========================================================= -->
+    <section class="tab-panel active" id="panel-callback" role="tabpanel">
+
+      <div class="callback-add card">
+        <form id="callAddForm" class="call-add-form" autocomplete="off">
+          <div class="field-row">
+            <input type="tel" id="callPhone" class="inp inp-phone" inputmode="tel"
+                   placeholder="전화번호 (예: 010-1234-5678)" required aria-label="전화번호">
+            <input type="text" id="callName" class="inp inp-name"
+                   placeholder="이름 (선택)" aria-label="이름">
+          </div>
+          <div class="field-row">
+            <input type="text" id="callMemo" class="inp inp-memo"
+                   placeholder="메모 (선택 — 예: 검사결과 문의)" aria-label="메모">
+            <label class="chk-urgent">
+              <input type="checkbox" id="callUrgent"> <span>급함</span>
+            </label>
+            <button type="submit" class="btn btn-primary btn-add">＋ 등록</button>
+          </div>
+        </form>
+        <button class="bulk-toggle" id="bulkToggle" type="button">📥 여러 건 한번에 붙여넣기</button>
+        <div class="bulk-box" id="bulkBox" hidden>
+          <p class="bulk-hint">KT 전화기·휴대폰 통화기록에서 <b>부재중 번호를 복사</b>해 붙여넣으세요. 번호를 자동으로 찾아 등록합니다.</p>
+          <textarea id="bulkText" class="inp bulk-text" rows="4"
+                    placeholder="010-1234-5678&#10;054-111-2222 김철수&#10;010 3333 4444"></textarea>
+          <div class="bulk-actions">
+            <button class="btn btn-primary" id="bulkAddBtn" type="button">번호 찾아 등록</button>
+            <button class="btn btn-ghost" id="bulkCancelBtn" type="button">닫기</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="callback-toolbar">
+        <div class="filter-chips" id="callFilters">
+          <button class="chip active" data-filter="pending">미처리 <span class="chip-count" id="cntPending">0</span></button>
+          <button class="chip" data-filter="all">전체 <span class="chip-count" id="cntAll">0</span></button>
+          <button class="chip" data-filter="done">완료 <span class="chip-count" id="cntDone">0</span></button>
+          <button class="chip" data-filter="hold">보류 <span class="chip-count" id="cntHold">0</span></button>
+        </div>
+        <input type="search" id="callSearch" class="inp inp-search" placeholder="🔍 번호·이름·메모 검색" aria-label="콜백 검색">
+      </div>
+
+      <div class="callback-list" id="callList"></div>
+      <div class="empty-state" id="callEmpty" hidden>
+        <div class="empty-ico">📭</div>
+        <p class="empty-title">부재중 콜백이 없습니다</p>
+        <p class="empty-desc">위에서 번호를 등록하거나 통화기록을 붙여넣어 시작하세요.</p>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- TAB 2: 응대 스크립트 / FAQ -->
+    <!-- ========================================================= -->
+    <section class="tab-panel" id="panel-scripts" role="tabpanel">
+      <div class="scripts-toolbar">
+        <input type="search" id="scriptSearch" class="inp inp-search inp-search-lg"
+               placeholder="🔍 무엇을 물어보나요? (예: 진료시간, 내시경, 주차)" aria-label="스크립트 검색">
+        <button class="btn btn-ghost btn-edit-toggle" id="scriptEditToggle" type="button">✏️ 편집</button>
+      </div>
+      <p class="edit-banner" id="scriptEditBanner" hidden>
+        편집 모드입니다. 항목을 우리 병원에 맞게 수정하세요. 변경 내용은 이 기기에 저장됩니다.
+        <button class="btn btn-sm btn-primary" id="scriptAddBtn" type="button">＋ 항목 추가</button>
+      </p>
+      <div class="scripts-body" id="scriptBody"></div>
+      <div class="empty-state" id="scriptEmpty" hidden>
+        <div class="empty-ico">🔍</div>
+        <p class="empty-title">검색 결과가 없습니다</p>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- TAB 3: 문자 템플릿 -->
+    <!-- ========================================================= -->
+    <section class="tab-panel" id="panel-templates" role="tabpanel">
+      <div class="tpl-fill card">
+        <p class="tpl-fill-title">치환 값 (템플릿의 <code>{환자명}</code> 등을 자동으로 채웁니다)</p>
+        <div class="tpl-fill-grid">
+          <label>환자명 <input type="text" class="inp tpl-var" data-var="환자명" placeholder="예: 홍길동"></label>
+          <label>날짜 <input type="text" class="inp tpl-var" data-var="날짜" placeholder="예: 7월 25일"></label>
+          <label>시간 <input type="text" class="inp tpl-var" data-var="시간" placeholder="예: 오전 10시"></label>
+        </div>
+      </div>
+      <div class="scripts-toolbar">
+        <input type="search" id="tplSearch" class="inp inp-search" placeholder="🔍 템플릿 검색" aria-label="템플릿 검색">
+        <button class="btn btn-ghost btn-edit-toggle" id="tplEditToggle" type="button">✏️ 편집</button>
+      </div>
+      <p class="edit-banner" id="tplEditBanner" hidden>
+        편집 모드입니다. 문자 내용을 수정하세요. <code>{환자명}</code> <code>{날짜}</code> <code>{시간}</code> 를 넣으면 위 값으로 자동 치환됩니다.
+        <button class="btn btn-sm btn-primary" id="tplAddBtn" type="button">＋ 템플릿 추가</button>
+      </p>
+      <div class="tpl-list" id="tplList"></div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- TAB 4: 설정 -->
+    <!-- ========================================================= -->
+    <section class="tab-panel" id="panel-settings" role="tabpanel">
+      <div class="card set-card">
+        <h2 class="set-h">병원 정보</h2>
+        <label class="set-field">병원 이름
+          <input type="text" id="setClinicName" class="inp" placeholder="예: ○○내과의원">
+        </label>
+        <label class="set-field">대표 전화 (문자 서명·회신 안내에 사용)
+          <input type="tel" id="setClinicPhone" class="inp" placeholder="예: 054-123-4567">
+        </label>
+        <button class="btn btn-primary" id="saveClinicBtn" type="button">저장</button>
+      </div>
+
+      <div class="card set-card">
+        <h2 class="set-h">화면</h2>
+        <div class="set-row">
+          <span>테마</span>
+          <div class="seg" id="themeSeg">
+            <button data-theme-mode="light">밝게</button>
+            <button data-theme-mode="dark">어둡게</button>
+            <button data-theme-mode="auto">자동</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card set-card">
+        <h2 class="set-h">데이터 백업</h2>
+        <p class="set-desc">모든 기록은 <b>이 기기(브라우저)에만</b> 저장됩니다. 서버로 전송되지 않아 환자 정보가 안전합니다. 기기를 바꾸거나 여러 대에서 쓰려면 백업 파일을 내보내고 불러오세요.</p>
+        <div class="set-btn-row">
+          <button class="btn btn-primary" id="exportBtn" type="button">⬇️ 백업 내보내기</button>
+          <label class="btn btn-ghost" for="importFile">⬆️ 백업 불러오기</label>
+          <input type="file" id="importFile" accept="application/json" hidden>
+        </div>
+      </div>
+
+      <div class="card set-card">
+        <h2 class="set-h">기록 정리</h2>
+        <p class="set-desc">완료된 콜백만 지우거나, 전체 데이터를 초기화할 수 있습니다.</p>
+        <div class="set-btn-row">
+          <button class="btn btn-ghost" id="clearDoneBtn" type="button">완료된 콜백 지우기</button>
+          <button class="btn btn-danger" id="resetBtn" type="button">전체 초기화</button>
+        </div>
+      </div>
+
+      <div class="card set-card set-about">
+        <h2 class="set-h">안내</h2>
+        <p class="set-desc">
+          이 도구는 <b>원무 데스크의 전화 부담을 줄이기 위한 보조 도구</b>입니다.
+          부재중 번호를 모아 콜백을 놓치지 않게 하고, 자주 하는 안내를 빠르게 찾고,
+          문자를 한 번에 보낼 수 있게 도와줍니다.
+        </p>
+        <p class="set-desc set-note">
+          ※ KT 인터넷 전화기와 <b>자동 연동(부재중 자동 수집·자동응답 ARS)</b>은 통신사/장비 API 연결이 필요한
+          다음 단계 작업입니다. 자세한 내용은 저장소의 <code>phone/README.md</code>를 참고하세요.
+        </p>
+        <p class="set-ver">v1.0</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========== Edit Modal ========== -->
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" id="modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3 id="modalTitle">편집</h3>
+        <button class="modal-x" id="modalClose" aria-label="닫기">✕</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" id="modalCancel" type="button">취소</button>
+        <button class="btn btn-primary" id="modalSave" type="button">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Toast ========== -->
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="js/app.js?v=1"></script>
+</body>
+</html>
